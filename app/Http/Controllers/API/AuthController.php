@@ -5,9 +5,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 use Validator;
    
-class RegisterController extends BaseController
+class AuthController extends BaseController
 {
     public function register(Request $request)
     {
@@ -23,9 +25,12 @@ class RegisterController extends BaseController
         }
    
         $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
+        $input['password'] = Hash::make($input['password']);
         $user = User::create($input);
-        $success['token'] =  $user->createToken('MyApp')->plainTextToken;
+        
+        event(new Registered($user));
+        
+        $success['token'] = $user->createToken('authtoken');
         $success['name'] =  $user->name;
    
         return $this->returnSuccess($success, 'User register successfully.');
@@ -35,7 +40,7 @@ class RegisterController extends BaseController
     {
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 
             $user = Auth::user(); 
-            $success['token'] =  $user->createToken('MyApp')->plainTextToken; 
+            $success['token'] =  $user->createToken('authtoken')->plainTextToken; 
             $success['name'] =  $user->name;
    
             return $this->returnSuccess($success, 'User login successfully.');
@@ -43,5 +48,14 @@ class RegisterController extends BaseController
         else{ 
             return $this->returnError('Unauthorised.', ['error'=>'Unauthorised']);
         } 
+    }
+
+    public function logout(Request $request)
+    {
+
+        $success = $request->user()->tokens()->delete();
+
+        return $this->returnSuccess($success, 'Log out!.');
+
     }
 }
