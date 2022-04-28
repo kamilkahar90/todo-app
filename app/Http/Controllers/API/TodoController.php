@@ -6,6 +6,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use Illuminate\Http\Request;
 use App\Models\Todo;
 use App\Http\Requests\TodoRequest;
+use App\Providers\TodoHistory;
 
 class TodoController extends BaseController
 {
@@ -53,6 +54,8 @@ class TodoController extends BaseController
             'user_id' => $request->user()->id,
         ]);
 
+        event(new TodoHistory($todo));
+
         return $this->returnSuccess($todo, 'Success create Todo.');
     }
 
@@ -89,15 +92,22 @@ class TodoController extends BaseController
     public function update(TodoRequest $request, $id)
     {   
         $validated = $request->validated();
-        
         $todo = Todo::where('id', $id)->update([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'date' => $request->input('date'),
             'reminder' => $request->input('reminder'),
         ]);
+
+        if($todo) {
+            $newTodo = Todo::where('id', $id)->get();
+
+            event(new TodoHistory($newTodo[0]));
+            return $this->returnSuccess($newTodo, 'Success update Todo.');
+        } else {            
+            return $this->returnError('Todo not exist.', ['error'=>'Missing']);
+        }
         
-        return $this->returnSuccess($todo, 'Success update Todo.');
     }
 
     /**

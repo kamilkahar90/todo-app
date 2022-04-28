@@ -22,7 +22,7 @@ class TodoLimitForFreeUser
         //count todo =>10 return response
         $countTodos = Todo::where('user_id', $request->user()->id)->count();
 
-        if ($countTodos>=5 && $request->user()->type == 'free') {
+        if ($countTodos>=10 && $request->user()->type == 'free') {
             return response()->json([
                 'message' => 'You have reach Todo limit. Go premium!',
             ]);

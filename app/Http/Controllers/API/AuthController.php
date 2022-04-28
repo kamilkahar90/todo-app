@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Validator;
+use App\Providers\LoginHistory;
    
 class AuthController extends BaseController
 {
@@ -42,6 +43,8 @@ class AuthController extends BaseController
             $user = Auth::user(); 
             $success['token'] =  $user->createToken('authtoken')->plainTextToken; 
             $success['name'] =  $user->name;
+
+            event(new LoginHistory($user));
    
             return $this->returnSuccess($success, 'User login successfully.');
         } 
