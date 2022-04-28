@@ -21,6 +21,8 @@ $ composer install
 $ php artisan migrate
 ```
 ### 5. Import Postman collection and environment
+- [Todo Postman.zip](https://github.com/kamilkahar90/todo-app/files/8583884/Todo.Postman.zip)
+
 ### 6. Run Project
 ```
 $ php artisan serve
