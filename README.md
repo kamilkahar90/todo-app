@@ -15,9 +15,11 @@ $ php artisan key:generate
 ```
 $ composer install
 ```
-### 4. Generate database
+### 4. Generate event and database migration
 -   Create database name : todo_app
+-   Run command to generate event and migration
 ```
+$ php artisan event:generate
 $ php artisan migrate
 ```
 ### 5. Import Postman collection and environment
